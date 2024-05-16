@@ -43,6 +43,7 @@ import androidx.annotation.RequiresApi;
 import com.cloudwebrtc.webrtc.audio.AudioSwitchManager;
 import com.cloudwebrtc.webrtc.record.AudioChannel;
 import com.cloudwebrtc.webrtc.record.AudioSamplesInterceptor;
+import com.cloudwebrtc.webrtc.record.AudioTrackInterceptor;
 import com.cloudwebrtc.webrtc.record.MediaRecorderImpl;
 import com.cloudwebrtc.webrtc.record.OutputAudioSamplesInterceptor;
 import com.cloudwebrtc.webrtc.utils.Callback;

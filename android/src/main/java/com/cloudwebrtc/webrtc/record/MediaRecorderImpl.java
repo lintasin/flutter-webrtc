@@ -14,7 +14,7 @@ public class MediaRecorderImpl {
     private final Integer id;
     private final VideoTrack videoTrack;
     private final AudioSamplesInterceptor audioInterceptor;
-    private VideoFileRenderer videoFileRenderer;
+    private VideoAudioFileRenderer videoFileRenderer;
     private boolean isRunning = false;
     private File recordFile;
 
@@ -32,7 +32,7 @@ public class MediaRecorderImpl {
         //noinspection ResultOfMethodCallIgnored
         file.getParentFile().mkdirs();
         if (videoTrack != null) {
-            videoFileRenderer = new VideoFileRenderer(
+            videoFileRenderer = new VideoAudioFileRenderer(
                 file.getAbsolutePath(),
                 EglUtils.getRootEglBaseContext(),
                 audioInterceptor != null
