@@ -118,6 +118,13 @@ class GetUserMediaImpl {
     private boolean isTorchOn;
     private Intent mediaProjectionData = null;
 
+    public void setAudioDeviceModule(JavaAudioDeviceModule module) {
+        audioDeviceModule = module;
+        if (outputSamplesInterceptor == null) {
+            outputSamplesInterceptor = new OutputAudioSamplesInterceptor(audioDeviceModule);
+        }
+    }
+
     public void screenRequestPermissions(ResultReceiver resultReceiver) {
         mediaProjectionData = null;
         final Activity activity = stateProvider.getActivity();
@@ -945,9 +952,9 @@ class GetUserMediaImpl {
         if (audioChannel == AudioChannel.INPUT) {
             interceptor = inputSamplesInterceptor;
         } else if (audioChannel == AudioChannel.OUTPUT) {
-            if (outputSamplesInterceptor == null) {
-                outputSamplesInterceptor = new OutputAudioSamplesInterceptor(audioDeviceModule);
-            }
+            // if (outputSamplesInterceptor == null) {
+            //     outputSamplesInterceptor = new OutputAudioSamplesInterceptor(audioDeviceModule);
+            // }
             interceptor = outputSamplesInterceptor;
         }
         MediaRecorderImpl mediaRecorder = new MediaRecorderImpl(id, videoTrack, interceptor);

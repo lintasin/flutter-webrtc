@@ -188,7 +188,8 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
 
     audioDeviceModule = audioDeviceModuleBuilder.createAudioDeviceModule();
 
-    getUserMediaImpl.audioDeviceModule = (JavaAudioDeviceModule) audioDeviceModule;
+    // getUserMediaImpl.audioDeviceModule = (JavaAudioDeviceModule) audioDeviceModule;
+    getUserMediaImpl.setAudioDeviceModule((JavaAudioDeviceModule) audioDeviceModule);
 
     final Options options = new Options();
     options.networkIgnoreMask = networkIgnoreMask;
