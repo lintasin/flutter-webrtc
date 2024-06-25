@@ -2,6 +2,9 @@ group 'com.cloudwebrtc.webrtc'
 version '1.0-SNAPSHOT'
 
 buildscript {
+    ext {
+        agp_version = '8.4.0'
+    }
     ext.kotlin_version = '1.6.10'
     repositories {
         google()
@@ -9,7 +12,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.1'
+        classpath "com.android.tools.build:gradle:$agp_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -30,7 +33,7 @@ android {
     if (project.android.hasProperty("namespace")) {
         namespace 'com.cloudwebrtc.webrtc'
     }
-    compileSdkVersion 31
+    compileSdk 34
 
     defaultConfig {
         minSdkVersion 21
@@ -56,6 +59,8 @@ dependencies {
     // implementation 'io.github.webrtc-sdk:android:125.6422.02'
     implementation(name:'libwebrtc', ext:'aar')
     implementation 'com.github.davidliu:audioswitch:89582c47c9a04c62f90aa5e57251af4800a62c9a'
-    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.annotation:annotation:1.7.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.google.android.gms:play-services-basement:18.3.0'
+    implementation files('libs/libwebrtc.aar')
 }

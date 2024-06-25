@@ -1,6 +1,7 @@
 package com.cloudwebrtc.webrtc.record;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 
 import org.webrtc.audio.JavaAudioDeviceModule.SamplesReadyCallback;
 import org.webrtc.audio.JavaAudioDeviceModule.AudioSamples;
@@ -18,16 +19,19 @@ public class AudioSamplesInterceptor implements SamplesReadyCallback {
 
     @Override
     public void onWebRtcAudioRecordSamplesReady(AudioSamples audioSamples) {
+        Log.d("AudioSamplesInterceptor", "onWebRtcAudioRecordSamplesReady");
         for (SamplesReadyCallback callback : callbacks.values()) {
             callback.onWebRtcAudioRecordSamplesReady(audioSamples);
         }
     }
 
     public void attachCallback(Integer id, SamplesReadyCallback callback) throws Exception {
+        Log.d("AudioSamplesInterceptor", "attachCallback");
         callbacks.put(id, callback);
     }
 
     public void detachCallback(Integer id) {
+        Log.d("AudioSamplesInterceptor", "detachCallback");
         callbacks.remove(id);
     }
 

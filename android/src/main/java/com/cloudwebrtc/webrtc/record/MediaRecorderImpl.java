@@ -33,7 +33,7 @@ public class MediaRecorderImpl {
         //noinspection ResultOfMethodCallIgnored
         file.getParentFile().mkdirs();
         if (videoTrack != null) {
-            videoFileRenderer = new VideoFileRenderer(
+            videoFileRenderer = new VideoAudioFileRenderer(
                 file.getAbsolutePath(),
                 EglUtils.getRootEglBaseContext(),
                 audioInterceptor != null
