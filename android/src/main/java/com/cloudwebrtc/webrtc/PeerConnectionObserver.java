@@ -659,9 +659,9 @@ class PeerConnectionObserver implements PeerConnection.Observer, EventChannel.St
       encoding.scaleResolutionDownBy = (Double) parameters.get("scaleResolutionDownBy");
     }
 
-    if (parameters.get("scalabilityMode") != null) {
-      encoding.scalabilityMode = (String) parameters.get("scalabilityMode");
-    }
+  //  if (parameters.get("scalabilityMode") != null) {
+  //    encoding.scalabilityMode = (String) parameters.get("scalabilityMode");
+  //  }
 
     return encoding;
   }
