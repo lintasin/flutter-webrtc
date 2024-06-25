@@ -173,6 +173,11 @@ internal class SimulcastVideoEncoderFactoryWrapper(
             return future.get()
         }
 
+    //    override fun createNativeVideoEncoder(): Long {
+    //        val future = executor.submit(Callable { return@Callable encoder.createNativeVideoEncoder() })
+    //        return future.get()
+    //    }
+
         override fun isHardwareEncoder(): Boolean {
             val future = executor.submit(Callable { return@Callable encoder.isHardwareEncoder })
             return future.get()

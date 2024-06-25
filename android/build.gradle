@@ -22,7 +22,7 @@ rootProject.allprojects {
         google()
         mavenCentral()
         maven { url 'https://jitpack.io' }
-        flatDir {dirs "${rootDir}/../../flutter-webrtc/android/libs"}
+        flatDir {dirs "$rootDir/../../flutter-webrtc/android/libs"}
     }
 }
 
@@ -62,5 +62,7 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.7.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.google.android.gms:play-services-basement:18.3.0'
-    implementation files('libs/libwebrtc.aar')
+//    implementation 'io.github.webrtc-sdk:android:114.5735.10'
+//    implementation(name: 'libwebrtc_old', ext: 'aar')
+    implementation(name: 'libwebrtc', ext: 'aar')
 }
