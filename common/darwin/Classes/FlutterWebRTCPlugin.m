@@ -6,7 +6,10 @@
 #import "FlutterRTCPeerConnection.h"
 #import "FlutterRTCVideoRenderer.h"
 #import "FlutterRTCFrameCryptor.h"
-
+#if TARGET_OS_IPHONE
+#import "FlutterRTCVideoPlatformViewFactory.h"
+#import "FlutterRTCVideoPlatformViewController.h"
+#endif
 #import <AVFoundation/AVFoundation.h>
 #import <WebRTC/RTCFieldTrials.h>
 #import <WebRTC/WebRTC.h>
@@ -92,6 +95,9 @@ void postEvent(FlutterEventSink _Nonnull sink, id _Nullable event) {
   BOOL _speakerOn;
   BOOL _speakerOnButPreferBluetooth;
   AVAudioSessionPort _preferredInput;
+#if TARGET_OS_IPHONE
+  FLutterRTCVideoPlatformViewFactory *_platformViewFactory;
+#endif
 }
 
 @synthesize messenger = _messenger;
@@ -141,6 +147,8 @@ void postEvent(FlutterEventSink _Nonnull sink, id _Nullable event) {
 #if TARGET_OS_IPHONE
     _preferredInput = AVAudioSessionPortHeadphones;
     self.viewController = viewController;
+    _platformViewFactory  = [[FLutterRTCVideoPlatformViewFactory alloc] initWithMessenger:messenger];
+    [registrar registerViewFactory:_platformViewFactory withId:FLutterRTCVideoPlatformViewFactoryID];
 #endif
   }
 
@@ -203,20 +211,11 @@ void postEvent(FlutterEventSink _Nonnull sink, id _Nullable event) {
   NSInteger routeChangeReason =
       [[interuptionDict valueForKey:AVAudioSessionRouteChangeReasonKey] integerValue];
   RTCAudioSession* session = [RTCAudioSession sharedInstance];
-  switch (routeChangeReason) {
-    case AVAudioSessionRouteChangeReasonNewDeviceAvailable: {
-      if (session.isActive) {
-        [AudioUtils selectAudioInput:_preferredInput];
-      }
-      break;
-    }
-    default:
-      break;
-  }
-
   if (self.eventSink &&
       (routeChangeReason == AVAudioSessionRouteChangeReasonNewDeviceAvailable ||
-       routeChangeReason == AVAudioSessionRouteChangeReasonOldDeviceUnavailable)) {
+       routeChangeReason == AVAudioSessionRouteChangeReasonOldDeviceUnavailable ||
+       routeChangeReason == AVAudioSessionRouteChangeReasonCategoryChange ||
+       routeChangeReason == AVAudioSessionRouteChangeReasonOverride)) {
     postEvent(self.eventSink, @{@"event" : @"onDeviceChange"});
   }
 #endif
@@ -754,7 +753,60 @@ void postEvent(FlutterEventSink _Nonnull sink, id _Nullable event) {
     }
     [self rendererSetSrcObject:render stream:videoTrack];
     result(nil);
-  } else if ([@"mediaStreamTrackHasTorch" isEqualToString:call.method]) {
+  }
+#if TARGET_OS_IPHONE
+  else if ([@"videoPlatformViewRendererSetSrcObject" isEqualToString:call.method]) {
+      NSDictionary* argsMap = call.arguments;
+      NSNumber* viewId = argsMap[@"viewId"];
+      FlutterRTCVideoPlatformViewController* render = _platformViewFactory.renders[viewId];
+      NSString* streamId = argsMap[@"streamId"];
+      NSString* ownerTag = argsMap[@"ownerTag"];
+      NSString* trackId = argsMap[@"trackId"];
+      if (!render) {
+        result([FlutterError errorWithCode:@"videoRendererSetSrcObject: render is nil"
+                                   message:nil
+                                   details:nil]);
+        return;
+      }
+      RTCMediaStream* stream = nil;
+      RTCVideoTrack* videoTrack = nil;
+      if ([ownerTag isEqualToString:@"local"]) {
+        stream = _localStreams[streamId];
+      }
+      if (!stream) {
+        stream = [self streamForId:streamId peerConnectionId:ownerTag];
+      }
+      if (stream) {
+        NSArray* videoTracks = stream ? stream.videoTracks : nil;
+        videoTrack = videoTracks && videoTracks.count ? videoTracks[0] : nil;
+        for (RTCVideoTrack* track in videoTracks) {
+          if ([track.trackId isEqualToString:trackId]) {
+            videoTrack = track;
+          }
+        }
+        if (!videoTrack) {
+          NSLog(@"Not found video track for RTCMediaStream: %@", streamId);
+        }
+      }
+      render.videoTrack = videoTrack;
+      result(nil);
+  } else if([@"videoPlatformViewRendererSetObjectFit" isEqualToString:call.method]){
+      NSDictionary* argsMap = call.arguments;
+      NSNumber* viewId = argsMap[@"viewId"];
+      NSNumber* fit = argsMap[@"objectFit"];
+      FlutterRTCVideoPlatformViewController* render = _platformViewFactory.renders[viewId];
+      [render setObjectFit:fit];
+      result(nil);
+  } else if ([@"videoPlatformViewRendererDispose" isEqualToString:call.method]) {
+      NSDictionary* argsMap = call.arguments;
+      NSNumber* viewId = argsMap[@"viewId"];
+      FlutterRTCVideoPlatformViewController* render = _platformViewFactory.renders[viewId];
+      render.videoTrack = nil;
+      [_platformViewFactory.renders removeObjectForKey:viewId];
+      result(nil);
+    }
+#endif
+     else if ([@"mediaStreamTrackHasTorch" isEqualToString:call.method]) {
     NSDictionary* argsMap = call.arguments;
     NSString* trackId = argsMap[@"trackId"];
     RTCMediaStreamTrack* track = self.localTracks[trackId];
@@ -855,6 +907,7 @@ void postEvent(FlutterEventSink _Nonnull sink, id _Nullable event) {
     _speakerOn = enable.boolValue;
     _speakerOnButPreferBluetooth = NO;
     [AudioUtils setSpeakerphoneOn:_speakerOn];
+    postEvent(self.eventSink, @{@"event" : @"onDeviceChange"});
     result(nil);
   }
   else if ([@"ensureAudioSession" isEqualToString:call.method]) {
@@ -1369,11 +1422,6 @@ void postEvent(FlutterEventSink _Nonnull sink, id _Nullable event) {
 - (void)ensureAudioSession {
 #if TARGET_OS_IPHONE
   [AudioUtils ensureAudioSessionWithRecording:[self hasLocalAudioTrack]];
-  if (_speakerOnButPreferBluetooth) {
-    [AudioUtils setSpeakerphoneOnButPreferBluetooth];
-  } else {
-    [AudioUtils setSpeakerphoneOn:_speakerOn];
-  }
 #endif
 }
 
