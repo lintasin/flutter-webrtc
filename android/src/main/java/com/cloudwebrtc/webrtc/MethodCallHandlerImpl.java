@@ -13,6 +13,7 @@ import android.media.AudioDeviceInfo;
 import android.os.Build;
 import android.util.Log;
 import android.util.LongSparseArray;
+import android.media.MediaRecorder.AudioSource;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -180,6 +181,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
     JavaAudioDeviceModule.Builder audioDeviceModuleBuilder = JavaAudioDeviceModule.builder(context)
             .setUseHardwareAcousticEchoCanceler(true)
             .setUseHardwareNoiseSuppressor(true)
+            .setAudioSource(AudioSource.MIC)
             .setSamplesReadyCallback(getUserMediaImpl.inputSamplesInterceptor);
 
     if (audioAttributes != null) {

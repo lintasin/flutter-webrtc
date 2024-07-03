@@ -73,7 +73,7 @@ public class AudioSwitchManager {
      * <br />
      * Defaults to AudioManager.MODE_NORMAL.
      */
-    private int audioMode = AudioManager.MODE_IN_COMMUNICATION;
+    private int audioMode = AudioManager.MODE_NORMAL;
 
     /**
      * The audio stream type to use when requesting audio focus on pre-O devices.
@@ -85,7 +85,7 @@ public class AudioSwitchManager {
      * <br />
      * Note: Manual audio routing may not work appropriately when using non-default values.
      */
-    private int audioStreamType = AudioManager.STREAM_VOICE_CALL;
+    private int audioStreamType = AudioManager.STREAM_MUSIC;
 
     /**
      * The audio attribute usage type to use when requesting audio focus on devices O and beyond.
@@ -97,7 +97,7 @@ public class AudioSwitchManager {
      * <br />
      * Note: Manual audio routing may not work appropriately when using non-default values.
      */
-    private int audioAttributeUsageType = AudioAttributes.USAGE_VOICE_COMMUNICATION;
+    private int audioAttributeUsageType = AudioAttributes.USAGE_MEDIA;
 
     /**
      * The audio attribute content type to use when requesting audio focus on devices O and beyond.

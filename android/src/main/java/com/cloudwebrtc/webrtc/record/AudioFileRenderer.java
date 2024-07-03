@@ -78,7 +78,7 @@ class AudioFileRenderer implements SamplesReadyCallback {
         if (audioBufferInfo == null)
             audioBufferInfo = new MediaCodec.BufferInfo();
         while (true) {
-            int encoderStatus = audioEncoder.dequeueOutputBuffer(audioBufferInfo, 10000);
+            int encoderStatus = audioEncoder.dequeueOutputBuffer(audioBufferInfo, 1000);
             if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
                 break;
             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
@@ -130,13 +130,14 @@ class AudioFileRenderer implements SamplesReadyCallback {
             return;
         audioThreadHandler.post(() -> {
             if (audioEncoder == null) try {
-                audioEncoder = MediaCodec.createEncoderByType("audio/mp4a-latm");
+                String audioType = "audio/mp4a-latm";
+                audioEncoder = MediaCodec.createEncoderByType(audioType);
                 MediaFormat format = new MediaFormat();
-                format.setString(MediaFormat.KEY_MIME, "audio/mp4a-latm");
+                format.setString(MediaFormat.KEY_MIME, audioType);
                 format.setInteger(MediaFormat.KEY_CHANNEL_COUNT, audioSamples.getChannelCount());
                 format.setInteger(MediaFormat.KEY_SAMPLE_RATE, audioSamples.getSampleRate());
-                format.setInteger(MediaFormat.KEY_BIT_RATE, 64 * 1024);
-                format.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);
+                format.setInteger(MediaFormat.KEY_BIT_RATE, 128 * 1000);
+                format.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectELD);
                 audioEncoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
                 audioEncoder.start();
                 audioInputBuffers = audioEncoder.getInputBuffers();
