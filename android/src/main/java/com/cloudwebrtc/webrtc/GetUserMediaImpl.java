@@ -973,7 +973,7 @@ class GetUserMediaImpl {
                 ContentValues values = new ContentValues(3);
                 values.put(MediaStore.Video.Media.TITLE, file.getName());
                 values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
-                values.put(MediaStore.Video.Media.DATA, file.getAbsolutePath());
+                // values.put(MediaStore.Video.Media.DATA, file.getAbsolutePath());
                 applicationContext
                         .getContentResolver()
                         .insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
