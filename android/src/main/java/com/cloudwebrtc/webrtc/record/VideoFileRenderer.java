@@ -4,6 +4,7 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
+import android.media.MediaCodecList;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
@@ -38,7 +39,7 @@ class VideoFileRenderer implements VideoSink, SamplesReadyCallback {
     // TODO: these ought to be configurable as well
     private static final String MIME_TYPE = "video/avc";    // H.264 Advanced Video Coding
     private static final int FRAME_RATE = 30;               // 30fps
-    private static final int IFRAME_INTERVAL = 5;           // 5 seconds between I-frames
+    private static final int IFRAME_INTERVAL = 15;           // 5 seconds between I-frames
 
     private final MediaMuxer mediaMuxer;
     private MediaCodec encoder;
@@ -89,7 +90,8 @@ class VideoFileRenderer implements VideoSink, SamplesReadyCallback {
         // Create a MediaCodec encoder, and configure it with our format.  Get a Surface
         // we can use for input and wrap it with a class that handles the EGL work.
         try {
-            encoder = MediaCodec.createEncoderByType(MIME_TYPE);
+            String codecName = new MediaCodecList(MediaCodecList.REGULAR_CODECS).findEncoderForFormat(format);
+            encoder = MediaCodec.createByCodecName(codecName);
             encoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
             renderThreadHandler.post(() -> {
                 eglBase = EglBase.create(sharedContext, EglBase.CONFIG_RECORDABLE);
@@ -161,7 +163,7 @@ class VideoFileRenderer implements VideoSink, SamplesReadyCallback {
             return;
         }
         while (true) {
-            int encoderStatus = encoder.dequeueOutputBuffer(bufferInfo, 10000);
+            int encoderStatus = encoder.dequeueOutputBuffer(bufferInfo, 1000);
             if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
                 break;
             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
@@ -217,7 +219,7 @@ class VideoFileRenderer implements VideoSink, SamplesReadyCallback {
         if (audioBufferInfo == null)
             audioBufferInfo = new MediaCodec.BufferInfo();
         while (true) {
-            int encoderStatus = audioEncoder.dequeueOutputBuffer(audioBufferInfo, 10000);
+            int encoderStatus = audioEncoder.dequeueOutputBuffer(audioBufferInfo, 1000);
             if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
                 break;
             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
