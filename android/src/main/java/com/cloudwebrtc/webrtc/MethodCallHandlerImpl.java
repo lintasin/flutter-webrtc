@@ -300,6 +300,13 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
         Map<String, Object> constraints = call.argument("constraints");
         ConstraintsMap constraintsMap = new ConstraintsMap(constraints);
         getUserMedia(constraintsMap, result);
+
+        // Danh: start audio from beginning
+        mFactory.initPlayout();
+        mFactory.initRecording();
+        mFactory.startPlayout();
+        mFactory.startRecording();
+        // Danh
         break;
       }
       case "createLocalMediaStream":
@@ -531,6 +538,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
         }
         render.Dispose();
         renders.delete(textureId);
+
         result.success(null);
         break;
       }
@@ -555,6 +563,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
         } else {
           render.setStream(stream, ownerTag);
         }
+
         result.success(null);
         break;
       }
@@ -595,7 +604,14 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
         break;
       }
       case "clearAndroidCommunicationDevice": {
+        
+        // Danh: stop audio at end
+        mFactory.stopPlayout();
+        mFactory.stopRecording();
+        // Danh
+
         AudioSwitchManager.instance.clearCommunicationDevice();
+        result.success(null);
         break;
       }
       case "setMicrophoneMute":
@@ -1389,6 +1405,7 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
     }
 
     getUserMediaImpl.getUserMedia(constraints, result, mediaStream);
+
   }
 
   public void getDisplayMedia(ConstraintsMap constraints, Result result) {
