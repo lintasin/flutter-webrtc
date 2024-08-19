@@ -37,9 +37,9 @@ class VideoFileRenderer implements VideoSink, SamplesReadyCallback {
     private VideoFrameDrawer frameDrawer;
 
     // TODO: these ought to be configurable as well
-    private static final String MIME_TYPE = "video/avc";    // H.264 Advanced Video Coding
-    private static final int FRAME_RATE = 30;               // 30fps
-    private static final int IFRAME_INTERVAL = 15;           // 5 seconds between I-frames
+    private static final String MIME_TYPE = "video/avc"; // H.264 Advanced Video Coding
+    private static final int FRAME_RATE = 30; // 30fps
+    private static final int IFRAME_INTERVAL = 15; // 5 seconds between I-frames
 
     private final MediaMuxer mediaMuxer;
     private MediaCodec encoder;
@@ -67,8 +67,8 @@ class VideoFileRenderer implements VideoSink, SamplesReadyCallback {
         bufferInfo = new MediaCodec.BufferInfo();
         this.sharedContext = sharedContext;
 
-        // Create a MediaMuxer.  We can't add the video track and start() the muxer here,
-        // because our MediaFormat doesn't have the Magic Goodies.  These can only be
+        // Create a MediaMuxer. We can't add the video track and start() the muxer here,
+        // because our MediaFormat doesn't have the Magic Goodies. These can only be
         // obtained from the encoder after it has started processing data.
         mediaMuxer = new MediaMuxer(outputFile,
                 MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
@@ -79,7 +79,8 @@ class VideoFileRenderer implements VideoSink, SamplesReadyCallback {
     private void initVideoEncoder() {
         MediaFormat format = MediaFormat.createVideoFormat(MIME_TYPE, outputFileWidth, outputFileHeight);
 
-        // Set some properties.  Failing to specify some of these can cause the MediaCodec
+        // Set some properties. Failing to specify some of these can cause the
+        // MediaCodec
         // configure() call to throw an unhelpful exception.
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT,
                 MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
@@ -87,7 +88,7 @@ class VideoFileRenderer implements VideoSink, SamplesReadyCallback {
         format.setInteger(MediaFormat.KEY_FRAME_RATE, FRAME_RATE);
         format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL);
 
-        // Create a MediaCodec encoder, and configure it with our format.  Get a Surface
+        // Create a MediaCodec encoder, and configure it with our format. Get a Surface
         // we can use for input and wrap it with a class that handles the EGL work.
         try {
             String codecName = new MediaCodecList(MediaCodecList.REGULAR_CODECS).findEncoderForFormat(format);
@@ -270,21 +271,22 @@ class VideoFileRenderer implements VideoSink, SamplesReadyCallback {
         if (!isRunning)
             return;
         audioThreadHandler.post(() -> {
-            if (audioEncoder == null) try {
-                audioEncoder = MediaCodec.createEncoderByType("audio/mp4a-latm");
-                MediaFormat format = new MediaFormat();
-                format.setString(MediaFormat.KEY_MIME, "audio/mp4a-latm");
-                format.setInteger(MediaFormat.KEY_CHANNEL_COUNT, audioSamples.getChannelCount());
-                format.setInteger(MediaFormat.KEY_SAMPLE_RATE, audioSamples.getSampleRate());
-                format.setInteger(MediaFormat.KEY_BIT_RATE, 64 * 1024);
-                format.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);
-                audioEncoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
-                audioEncoder.start();
-                audioInputBuffers = audioEncoder.getInputBuffers();
-                audioOutputBuffers = audioEncoder.getOutputBuffers();
-            } catch (IOException exception) {
-                Log.wtf(TAG, exception);
-            }
+            if (audioEncoder == null)
+                try {
+                    audioEncoder = MediaCodec.createEncoderByType("audio/mp4a-latm");
+                    MediaFormat format = new MediaFormat();
+                    format.setString(MediaFormat.KEY_MIME, "audio/mp4a-latm");
+                    format.setInteger(MediaFormat.KEY_CHANNEL_COUNT, audioSamples.getChannelCount());
+                    format.setInteger(MediaFormat.KEY_SAMPLE_RATE, audioSamples.getSampleRate());
+                    format.setInteger(MediaFormat.KEY_BIT_RATE, 64 * 1024);
+                    format.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);
+                    audioEncoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+                    audioEncoder.start();
+                    audioInputBuffers = audioEncoder.getInputBuffers();
+                    audioOutputBuffers = audioEncoder.getOutputBuffers();
+                } catch (IOException exception) {
+                    Log.wtf(TAG, exception);
+                }
             int bufferIndex = audioEncoder.dequeueInputBuffer(0);
             if (bufferIndex >= 0) {
                 ByteBuffer buffer = audioInputBuffers[bufferIndex];

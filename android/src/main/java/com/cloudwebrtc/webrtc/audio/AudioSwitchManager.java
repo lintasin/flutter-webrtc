@@ -33,13 +33,11 @@ public class AudioSwitchManager {
     @NonNull
     private final AudioManager audioManager;
 
-    public boolean loggingEnabled;
+    public boolean loggingEnabled = true;
     private boolean isActive = false;
     @NonNull
-    public Function2<
-            ? super List<? extends AudioDevice>,
-            ? super AudioDevice,
-            Unit> audioDeviceChangeListener = (devices, currentDevice) -> null;
+    public Function2<? super List<? extends AudioDevice>, ? super AudioDevice, Unit> audioDeviceChangeListener = (
+            devices, currentDevice) -> null;
 
     @NonNull
     public AudioManager.OnAudioFocusChangeListener audioFocusChangeListener = (i -> {
@@ -48,14 +46,16 @@ public class AudioSwitchManager {
     @NonNull
     public List<Class<? extends AudioDevice>> preferredDeviceList;
 
-    // AudioSwitch is not threadsafe, so all calls should be done on the main thread.
+    // AudioSwitch is not threadsafe, so all calls should be done on the main
+    // thread.
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     @Nullable
     private AudioSwitch audioSwitch;
 
     /**
-     * When true, AudioSwitchManager will request audio focus on start and abandon on stop.
+     * When true, AudioSwitchManager will request audio focus on start and abandon
+     * on stop.
      * <br />
      * Defaults to true.
      */
@@ -73,51 +73,66 @@ public class AudioSwitchManager {
      * <br />
      * Defaults to AudioManager.MODE_NORMAL.
      */
-    private int audioMode = AudioManager.MODE_NORMAL;
+    private int audioMode = AudioManager.MODE_IN_COMMUNICATION;
 
     /**
      * The audio stream type to use when requesting audio focus on pre-O devices.
      * <br />
      * Defaults to AudioManager.STREAM_VOICE_CALL.
      * <br />
-     * Refer to this <a href="https://source.android.com/docs/core/audio/attributes#compatibility">compatibility table</a>
+     * Refer to this <a href=
+     * "https://source.android.com/docs/core/audio/attributes#compatibility">compatibility
+     * table</a>
      * to ensure that your values match between android versions.
      * <br />
-     * Note: Manual audio routing may not work appropriately when using non-default values.
+     * Note: Manual audio routing may not work appropriately when using non-default
+     * values.
      */
-    private int audioStreamType = AudioManager.STREAM_MUSIC;
+    private int audioStreamType = AudioManager.STREAM_VOICE_CALL;
 
     /**
-     * The audio attribute usage type to use when requesting audio focus on devices O and beyond.
+     * The audio attribute usage type to use when requesting audio focus on devices
+     * O and beyond.
      * <br />
      * Defaults to AudioAttributes.USAGE_VOICE_COMMUNICATION.
      * <br />
-     * Refer to this <a href="https://source.android.com/docs/core/audio/attributes#compatibility">compatibility table</a>
+     * Refer to this <a href=
+     * "https://source.android.com/docs/core/audio/attributes#compatibility">compatibility
+     * table</a>
      * to ensure that your values match between android versions.
      * <br />
-     * Note: Manual audio routing may not work appropriately when using non-default values.
+     * Note: Manual audio routing may not work appropriately when using non-default
+     * values.
      */
-    private int audioAttributeUsageType = AudioAttributes.USAGE_MEDIA;
+    private int audioAttributeUsageType = AudioAttributes.USAGE_VOICE_COMMUNICATION;
 
     /**
-     * The audio attribute content type to use when requesting audio focus on devices O and beyond.
+     * The audio attribute content type to use when requesting audio focus on
+     * devices O and beyond.
      * <br />
      * Defaults to AudioAttributes.CONTENT_TYPE_SPEECH.
      * <br />
-     * Refer to this <a href="https://source.android.com/docs/core/audio/attributes#compatibility">compatibility table</a>
+     * Refer to this <a href=
+     * "https://source.android.com/docs/core/audio/attributes#compatibility">compatibility
+     * table</a>
      * to ensure that your values match between android versions.
      * <br />
-     * Note: Manual audio routing may not work appropriately when using non-default values.
+     * Note: Manual audio routing may not work appropriately when using non-default
+     * values.
      */
     private int audioAttributeContentType = AudioAttributes.CONTENT_TYPE_SPEECH;
 
     /**
-     * On certain Android devices, audio routing does not function properly and bluetooth microphones will not work
-     * unless audio mode is set to [AudioManager.MODE_IN_COMMUNICATION] or [AudioManager.MODE_IN_CALL].
+     * On certain Android devices, audio routing does not function properly and
+     * bluetooth microphones will not work
+     * unless audio mode is set to [AudioManager.MODE_IN_COMMUNICATION] or
+     * [AudioManager.MODE_IN_CALL].
      *
-     * AudioSwitchManager by default will not handle audio routing in those cases to avoid audio issues.
+     * AudioSwitchManager by default will not handle audio routing in those cases to
+     * avoid audio issues.
      *
-     * If this set to true, AudioSwitchManager will attempt to do audio routing, though behavior is undefined.
+     * If this set to true, AudioSwitchManager will attempt to do audio routing,
+     * though behavior is undefined.
      */
     private boolean forceHandleAudioRouting = false;
 
@@ -141,8 +156,7 @@ public class AudioSwitchManager {
                         context,
                         loggingEnabled,
                         audioFocusChangeListener,
-                        preferredDeviceList
-                );
+                        preferredDeviceList);
                 audioSwitch.setManageAudioFocus(manageAudioFocus);
                 audioSwitch.setFocusMode(focusMode);
                 audioSwitch.setAudioMode(audioMode);

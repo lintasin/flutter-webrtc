@@ -97,7 +97,7 @@ public class FlutterWebRTCPlugin implements FlutterPlugin, ActivityAware, EventC
         methodCallHandler.setActivity(null);
         if (this.observer != null) {
             this.lifecycle.removeObserver(this.observer);
-            if (application!=null) {
+            if (application != null) {
                 application.unregisterActivityLifecycleCallbacks(this.observer);
             }
         }
@@ -105,15 +105,15 @@ public class FlutterWebRTCPlugin implements FlutterPlugin, ActivityAware, EventC
     }
 
     private void startListening(final Context context, BinaryMessenger messenger,
-                                TextureRegistry textureRegistry) {
+            TextureRegistry textureRegistry) {
         AudioSwitchManager.instance = new AudioSwitchManager(context);
         methodCallHandler = new MethodCallHandlerImpl(context, messenger, textureRegistry);
         methodChannel = new MethodChannel(messenger, "FlutterWebRTC.Method");
         methodChannel.setMethodCallHandler(methodCallHandler);
-        eventChannel = new EventChannel( messenger,"FlutterWebRTC.Event");
+        eventChannel = new EventChannel(messenger, "FlutterWebRTC.Event");
         eventChannel.setStreamHandler(this);
         AudioSwitchManager.instance.audioDeviceChangeListener = (devices, currentDevice) -> {
-            Log.w(TAG, "audioFocusChangeListener " + devices+ " " + currentDevice);
+            Log.w(TAG, "audioFocusChangeListener " + devices + " " + currentDevice);
             ConstraintsMap params = new ConstraintsMap();
             params.putString("event", "onDeviceChange");
             sendEvent(params.toMap());
@@ -136,13 +136,14 @@ public class FlutterWebRTCPlugin implements FlutterPlugin, ActivityAware, EventC
     public void onListen(Object arguments, EventChannel.EventSink events) {
         eventSink = new AnyThreadSink(events);
     }
+
     @Override
     public void onCancel(Object arguments) {
         eventSink = null;
     }
 
     public void sendEvent(Object event) {
-        if(eventSink != null) {
+        if (eventSink != null) {
             eventSink.success(event);
         }
     }
